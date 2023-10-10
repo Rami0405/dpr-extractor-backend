@@ -2,6 +2,8 @@ const xlsx = require('xlsx');
 const XLSXStyle = require('xlsx-style');
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
+const { v4: uuidv4 } = require('uuid');
 const vesselsData = require('./vesselsHP.json');
 
 const countMGOInAllSheets = (filePath) => {
@@ -701,13 +703,14 @@ const dprController = (req, res) => {
     const excelBuffer = XLSXStyle.write(newWorkbook, { type: 'buffer', bookType: 'xlsx' });
 
     // Create the 'downloads' directory if it doesn't exist
-    const directoryPath = path.join(__dirname, '..', 'downloads');
-    if (!fs.existsSync(directoryPath)) {
-        fs.mkdirSync(directoryPath);
-    }
+    const generateUniqueFileName = () => {
+        const uniqueId = uuidv4();
+        return `data-${uniqueId}.xlsx`;
+    };
+    const tempDir = os.tmpdir();
 
     // Save the buffer to a file
-    const filePath = path.join(directoryPath, 'data.xlsx');
+    const filePath = path.join(tempDir, generateUniqueFileName());
     fs.writeFileSync(filePath, excelBuffer);
 
     // Send the file for download
