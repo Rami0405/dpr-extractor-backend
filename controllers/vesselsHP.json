@@ -1,0 +1,41 @@
+{
+  "vessels": [
+    {
+      "name": "Synergy",
+      "horsepower": 2400,
+      "consumptionAUX":17
+    },
+    {
+      "name": "EAGLE 2",
+      "horsepower": 5184,
+      "consumptionAUX":35
+
+    },
+    {   "name": "EAGLE 1",
+      "horsepower": 5150,
+      "consumptionAUX":35
+
+    },
+    {   "name": "Farida A",
+      "horsepower": 1658,
+      "consumptionAUX":20
+    },
+    {
+      "name": "TITAN",
+      "horsepower": 5150,
+      "consumptionAUX":27
+
+    },
+    {
+      "name": "RESOLUTION",
+      "horsepower": 5220,
+      "consumptionAUX":40
+    },
+    {
+      "name": "Neptune",
+      "horsepower": 3600,
+      "consumptionAUX":33
+
+    }
+  ]
+}
