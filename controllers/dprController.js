@@ -41,7 +41,7 @@ const countMGOInAllSheets = (filePath) => {
     return sum ? sum : 0;
 };
 
-const countHoursPortAllSheets = (filePath) => {
+const countHoursPortAndSTBDAllSheets = (filePath, rowData1) => {
     const workbook = xlsx.readFile(filePath);
     const sheetNames = workbook.SheetNames;
     const hours = [];
@@ -65,41 +65,7 @@ const countHoursPortAllSheets = (filePath) => {
         });
     });
 
-    const rowDataArray = hours.map((occurrence) => occurrence.rowData[0]);
-    const secondFilledElements = rowDataArray.map((occurrence) => {
-        const filledElements = occurrence.filter((element) => element !== '');
-        const secondElement = filledElements[3];
-        return secondElement !== undefined ? parseFloat(secondElement) : null;
-    });
-
-    const sum = secondFilledElements.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-    return sum ? sum : 0;;
-};
-const countHoursSTBDAllSheets = (filePath) => {
-    const workbook = xlsx.readFile(filePath);
-    const sheetNames = workbook.SheetNames;
-    const hours = [];
-
-    sheetNames.forEach((sheetName) => {
-        const worksheet = workbook.Sheets[sheetName];
-        const sheetData = xlsx.utils.sheet_to_json(worksheet, { header: 1 });
-
-        sheetData.forEach((row, rowIndex) => {
-            row.forEach((cell, columnIndex) => {
-                if (cell === 'Equipment/s') {
-                    const nextRows = sheetData.slice(rowIndex + 1, rowIndex + 6);
-                    hours.push({
-                        sheetName,
-                        rowIndex: rowIndex + 2,
-                        columnIndex: columnIndex + 1,
-                        rowData: nextRows,
-                    });
-                }
-            });
-        });
-    });
-
-    const rowDataArray = hours.map((occurrence) => occurrence.rowData[1]);
+    const rowDataArray = hours.map((occurrence) => occurrence.rowData[rowData1]);
     const secondFilledElements = rowDataArray.map((occurrence) => {
         const filledElements = occurrence.filter((element) => element !== '');
         const secondElement = filledElements[3];
@@ -110,7 +76,7 @@ const countHoursSTBDAllSheets = (filePath) => {
     return sum ? sum : 0;;
 };
 
-const countHoursCEAllSheets = (filePath) => {
+const countTotalRunningHoursSheets = (filePath, rowDataNum) => {
     const workbook = xlsx.readFile(filePath);
     const sheetNames = workbook.SheetNames;
     const mgoOccurrences = [];
@@ -134,18 +100,18 @@ const countHoursCEAllSheets = (filePath) => {
         });
     });
 
-    const rowDataArray = mgoOccurrences.map((occurrence) => occurrence.rowData[2]);
+    const rowDataArray = mgoOccurrences.map((occurrence) => occurrence.rowData[rowDataNum]);
     const secondFilledElements = rowDataArray.map((occurrence) => {
         const filledElements = occurrence.filter((element) => element !== '');
-        const secondElement = filledElements[3];
+        const secondElement = filledElements[2];
         return secondElement !== undefined ? parseFloat(secondElement) : null;
     });
 
-    const sum = secondFilledElements.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+    const sum = secondFilledElements[secondFilledElements.length - 1];
     return sum ? sum : 0;
 
 };
-const countHoursDG1AllSheets = (filePath) => {
+const countHoursDGAllSheets = (filePath, rowIndex1, rowData1) => {
     const workbook = xlsx.readFile(filePath);
     const sheetNames = workbook.SheetNames;
     const mgoOccurrences = [];
@@ -157,7 +123,7 @@ const countHoursDG1AllSheets = (filePath) => {
         sheetData.forEach((row, rowIndex) => {
             row.forEach((cell, columnIndex) => {
                 if (cell === 'Equipment/s') {
-                    const nextRows = sheetData.slice(rowIndex + 1, rowIndex + 6);
+                    const nextRows = sheetData.slice(rowIndex + 1, rowIndex + rowIndex1);
                     mgoOccurrences.push({
                         sheetName,
                         rowIndex: rowIndex + 2,
@@ -169,148 +135,7 @@ const countHoursDG1AllSheets = (filePath) => {
         });
     });
 
-    const rowDataArray = mgoOccurrences.map((occurrence) => occurrence.rowData[3]);
-    const secondFilledElements = rowDataArray.map((occurrence) => {
-        const filledElements = occurrence.filter((element) => element !== '');
-        const secondElement = filledElements[3];
-        return secondElement !== undefined ? parseFloat(secondElement) : null;
-    });
-
-    const sum = secondFilledElements.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-    return sum ? sum : 0;
-
-};
-const countHoursDG2AllSheets = (filePath) => {
-    const workbook = xlsx.readFile(filePath);
-    const sheetNames = workbook.SheetNames;
-    const mgoOccurrences = [];
-
-    sheetNames.forEach((sheetName) => {
-        const worksheet = workbook.Sheets[sheetName];
-        const sheetData = xlsx.utils.sheet_to_json(worksheet, { header: 1 });
-
-        sheetData.forEach((row, rowIndex) => {
-            row.forEach((cell, columnIndex) => {
-                if (cell === 'Equipment/s') {
-                    const nextRows = sheetData.slice(rowIndex + 1, rowIndex + 6);
-                    mgoOccurrences.push({
-                        sheetName,
-                        rowIndex: rowIndex + 2,
-                        columnIndex: columnIndex + 1,
-                        rowData: nextRows,
-                    });
-                }
-            });
-        });
-    });
-
-    const rowDataArray = mgoOccurrences.map((occurrence) => occurrence.rowData[4]);
-    const secondFilledElements = rowDataArray.map((occurrence) => {
-        const filledElements = occurrence.filter((element) => element !== '');
-        const secondElement = filledElements[3];
-        return secondElement !== undefined ? parseFloat(secondElement) : null;
-    });
-
-    const sum = secondFilledElements.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-    return sum ? sum : 0;
-
-};
-
-const countHoursDG3AllSheets = (filePath) => {
-    const workbook = xlsx.readFile(filePath);
-    const sheetNames = workbook.SheetNames;
-    const mgoOccurrences = [];
-
-    sheetNames.forEach((sheetName) => {
-        const worksheet = workbook.Sheets[sheetName];
-        const sheetData = xlsx.utils.sheet_to_json(worksheet, { header: 1 });
-
-        sheetData.forEach((row, rowIndex) => {
-            row.forEach((cell, columnIndex) => {
-                if (cell === 'Equipment/s') {
-                    const nextRows = sheetData.slice(rowIndex + 1, rowIndex + 8);
-                    mgoOccurrences.push({
-                        sheetName,
-                        rowIndex: rowIndex + 2,
-                        columnIndex: columnIndex + 1,
-                        rowData: nextRows,
-                    });
-                }
-            });
-        });
-    });
-
-    const rowDataArray = mgoOccurrences.map((occurrence) => occurrence.rowData[5]);
-    const secondFilledElements = rowDataArray.map((occurrence) => {
-        const filledElements = occurrence.filter((element) => element !== '');
-        const secondElement = filledElements[3];
-        return secondElement !== undefined ? parseFloat(secondElement) : null;
-    });
-
-    const sum = secondFilledElements.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-    return sum ? sum : 0;
-
-};
-const countHoursDG4AllSheets = (filePath) => {
-    const workbook = xlsx.readFile(filePath);
-    const sheetNames = workbook.SheetNames;
-    const mgoOccurrences = [];
-
-    sheetNames.forEach((sheetName) => {
-        const worksheet = workbook.Sheets[sheetName];
-        const sheetData = xlsx.utils.sheet_to_json(worksheet, { header: 1 });
-
-        sheetData.forEach((row, rowIndex) => {
-            row.forEach((cell, columnIndex) => {
-                if (cell === 'Equipment/s') {
-                    const nextRows = sheetData.slice(rowIndex + 1, rowIndex + 8);
-                    mgoOccurrences.push({
-                        sheetName,
-                        rowIndex: rowIndex + 2,
-                        columnIndex: columnIndex + 1,
-                        rowData: nextRows,
-                    });
-                }
-            });
-        });
-    });
-
-    const rowDataArray = mgoOccurrences.map((occurrence) => occurrence.rowData[6]);
-    const secondFilledElements = rowDataArray.map((occurrence) => {
-        const filledElements = occurrence.filter((element) => element !== '');
-        const secondElement = filledElements[3];
-        return secondElement !== undefined ? parseFloat(secondElement) : null;
-    });
-
-    const sum = secondFilledElements.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-    return sum ? sum : 0;
-
-};
-const countHoursDG5AllSheets = (filePath) => {
-    const workbook = xlsx.readFile(filePath);
-    const sheetNames = workbook.SheetNames;
-    const mgoOccurrences = [];
-
-    sheetNames.forEach((sheetName) => {
-        const worksheet = workbook.Sheets[sheetName];
-        const sheetData = xlsx.utils.sheet_to_json(worksheet, { header: 1 });
-
-        sheetData.forEach((row, rowIndex) => {
-            row.forEach((cell, columnIndex) => {
-                if (cell === 'Equipment/s') {
-                    const nextRows = sheetData.slice(rowIndex + 1, rowIndex + 9);
-                    mgoOccurrences.push({
-                        sheetName,
-                        rowIndex: rowIndex + 2,
-                        columnIndex: columnIndex + 1,
-                        rowData: nextRows,
-                    });
-                }
-            });
-        });
-    });
-
-    const rowDataArray = mgoOccurrences.map((occurrence) => occurrence.rowData[7]);
+    const rowDataArray = mgoOccurrences.map((occurrence) => occurrence.rowData[rowData1]);
     const secondFilledElements = rowDataArray.map((occurrence) => {
         const filledElements = occurrence.filter((element) => element !== '');
         const secondElement = filledElements[3];
@@ -434,26 +259,28 @@ const dprController = (req, res) => {
     fileDataArray.unshift(['S/N', 'Vessel Name', 'HP', 'Monthly CONSM.Cu.M',
         'Monthly ME RH', 'ME CON./h', 'ME CON./D Cu.M', 'DG1 RH', 'DG2 RH', 'DG3 RH', 'DG4 RH',
         'DG5 RH', 'AUX R/H Total', 'NO AUX R/D', 'Aux CON./h', 'AUX CON./D Cu.M',
-        'Estimated vessel CON AVG. Vessel Daily Consumption Sailing Cu.M', 'Ratio HP-L', 'Total DIST.']);
+        'Estimated vessel CON AVG. Vessel Daily Consumption Sailing Cu.M', 'Ratio HP-L', 'Total DIST.',
+        'Total Running Hours M/E Port', 'Total Running Hours M/E STBD']);
 
     // Process each uploaded file
     files.forEach((file) => {
         const totalConsumption = countMGOInAllSheets(file.path);
-        const totalhoursPort = countHoursPortAllSheets(file.path);
-        const totalhoursSTBD = countHoursSTBDAllSheets(file.path);
+        const totalhoursPort = countHoursPortAndSTBDAllSheets(file.path, 0);
+        const totalhoursSTBD = countHoursPortAndSTBDAllSheets(file.path, 1);
         const totalHour = totalhoursPort + totalhoursSTBD;
         const totalHours = totalHour / 2;
-        const totalConsumptionPerHour = totalConsumption * 1000 / totalHours
-        const totalHoursDG1 = countHoursDG1AllSheets(file.path);
-        const totalHoursDG2 = countHoursDG2AllSheets(file.path);
-        const totalHoursDG3 = countHoursDG3AllSheets(file.path);
-        const totalHoursDG4 = countHoursDG4AllSheets(file.path);
-        const totalHoursDG5 = countHoursDG5AllSheets(file.path);
+        //const totalConsumptionPerHour = totalConsumption * 1000 / totalHours
+        const totalHoursDG1 = countHoursDGAllSheets(file.path, 6, 3);
+        const totalHoursDG2 = countHoursDGAllSheets(file.path, 6, 4);
+        const totalHoursDG3 = countHoursDGAllSheets(file.path, 8, 5);
+        const totalHoursDG4 = countHoursDGAllSheets(file.path, 8, 6);
+        const totalHoursDG5 = countHoursDGAllSheets(file.path, 9, 7);
         const totalDGHours = totalHoursDG1 + totalHoursDG2 + totalHoursDG3 + totalHoursDG4 + totalHoursDG5;
         const totalMile = countMilageAllSheets(file.path);
+        const totalRunningHoursPort = countTotalRunningHoursSheets(file.path, 0)
+        const totalRunningHoursSTBD = countTotalRunningHoursSheets(file.path, 1)
         // Read the Excel file
         const workbook = xlsx.readFile(file.path);
-
         // Get all sheet names
         var sheetNames = workbook.SheetNames;
         sheetNames = sheetNames.map((sheetName) => {
@@ -502,12 +329,12 @@ const dprController = (req, res) => {
             meCON, meCONperD, parseFloat(totalHoursDG1.toFixed(1)), parseFloat(totalHoursDG2.toFixed(1)), parseFloat(totalHoursDG3.toFixed(1)),
             parseFloat(totalHoursDG4.toFixed(1)), parseFloat(totalHoursDG5.toFixed(1)), parseFloat(totalDGHours.toFixed(1)), parseFloat((totalDGHours / 24 / monthDay).toFixed(1)),
             parseFloat(auxCON).toFixed(1), parseFloat(auxCONperD).toFixed(1), parseFloat(meCONperD + auxCONperD).toFixed(1),
-            parseFloat((meCONperD + auxCONperD) * 1000 / vesselHP).toFixed(1), parseFloat(totalMile.toFixed(1))])
+            parseFloat((meCONperD + auxCONperD) * 1000 / vesselHP).toFixed(1), parseFloat(totalMile.toFixed(1)), parseFloat(totalRunningHoursPort.toFixed(1)), parseFloat(totalRunningHoursSTBD.toFixed(1))])
         serialNumber++;
 
 
     });
-
+    console.log(fileDataArray)
 
     // Create a new workbook
     const newWorkbook = xlsx.utils.book_new();
@@ -610,7 +437,7 @@ const dprController = (req, res) => {
         { wpx: 150 }, // Monthly CONSM.Cu.M
         { wpx: 110 }, // Monthly ME RH
         { wpx: 90 }, // me CON./h
-        { wpx: 90 }, // me CON./D
+        { wpx: 100 }, // me CON./D
         { wpx: 50 }, // DG1 RH
         { wpx: 50 }, // DG2 RH
         { wpx: 50 }, // DG3 RH
@@ -619,9 +446,12 @@ const dprController = (req, res) => {
         { wpx: 100 }, // AUX R/H Total
         { wpx: 100 }, // Number of AUX running per day
         { wpx: 90 }, // aux CON./h
-        { wpx: 90 }, // aux CON./D
-        { wpx: 90 }, //ratio HP-L
-        { wpx: 80 }, // Total DIST.
+        { wpx: 110 }, // aux CON./D
+        { wpx: 150 }, // Estimated vessel CON AVG. Vessel Daily Consumption Sailing Cu.M
+        { wpx: 80 }, // ratio HP-L
+        { wpx: 90 },// Total DIST.
+        { wpx: 185 }, //Total Running Hours M/E Port
+        { wpx: 185 } //Total Running Hours M/E STBD
     ];
     newWorksheet['!cols'] = columnWidths;
 
