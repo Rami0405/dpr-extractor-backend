@@ -222,6 +222,58 @@ const readVesselsFileHP = (vesselName) => {
         return "no HP found";
     }
 };
+const readVesselsFileMinorOverHaul = (vesselName) => {
+    // Remove empty elements from the firstRow array
+    var minorOverHauling = 0;
+    var matchFound = false;
+
+    // Access the vessel name and horsepower values directly from vesselsData
+    vesselsData.vessels.forEach((vessel) => {
+        const name = vessel.name;
+        const minorOverHauls = vessel.MinorOverhaul;
+
+        if (vesselName.toUpperCase().includes(name.toUpperCase())) {
+            minorOverHauling = minorOverHauls;
+            matchFound = true;
+            // You can perform additional operations if needed
+            // within this if block
+        }
+
+        // Do something with the name and horsepower values
+    });
+
+    if (matchFound) {
+        return minorOverHauling;
+    } else {
+        return "no HP found";
+    }
+};
+const readVesselsFileMajorOverHaul = (vesselName) => {
+    // Remove empty elements from the firstRow array
+    var majorOverHauling = 0;
+    var matchFound = false;
+
+    // Access the vessel name and horsepower values directly from vesselsData
+    vesselsData.vessels.forEach((vessel) => {
+        const name = vessel.name;
+        const majorOverHauls = vessel.MajorOverhaul;
+
+        if (vesselName.toUpperCase().includes(name.toUpperCase())) {
+            majorOverHauling = majorOverHauls;
+            matchFound = true;
+            // You can perform additional operations if needed
+            // within this if block
+        }
+
+        // Do something with the name and horsepower values
+    });
+
+    if (matchFound) {
+        return majorOverHauling;
+    } else {
+        return "no HP found";
+    }
+};
 const readVesselsFileAUX = (vesselName) => {
     // Remove empty elements from the firstRow array
     var aux = 0;
@@ -260,7 +312,7 @@ const dprController = (req, res) => {
         'Monthly ME RH', 'ME CON./h', 'ME CON./D Cu.M', 'DG1 RH', 'DG2 RH', 'DG3 RH', 'DG4 RH',
         'DG5 RH', 'AUX R/H Total', 'NO AUX R/D', 'Aux CON./h', 'AUX CON./D Cu.M',
         'Estimated vessel CON AVG. Vessel Daily Consumption Sailing Cu.M', 'Ratio HP-L', 'Total DIST.',
-        'Total Running Hours M/E Port', 'Total Running Hours M/E STBD']);
+        'Total Running Hours M/E Port', 'Total Running Hours M/E STBD', 'Estimated Major overhaul M/E Port', 'Estimated Major overhaul M/E STBD']);
 
     // Process each uploaded file
     files.forEach((file) => {
@@ -320,21 +372,40 @@ const dprController = (req, res) => {
         });
         const vesselName = VesselRow[1]
         const vesselHP = readVesselsFileHP(vesselName);
+        const minorOverHaul = readVesselsFileMinorOverHaul(vesselName)
+        const majorOverHaul = readVesselsFileMajorOverHaul(vesselName)
+
         const vesselAUXConsumption = readVesselsFileAUX(vesselName)
         const meCON = parseFloat(((totalConsumption * 1000 - vesselAUXConsumption * totalDGHours) / totalHours).toFixed(1));
         const auxCON = parseFloat((((totalDGHours.toFixed(1) * vesselAUXConsumption)) / 24 / monthDay).toFixed(1))
         const meCONperD = meCON * 24 / 1000
         const auxCONperD = auxCON * 24 / 1000
+        const startDateString = '14/09/2013';
+        const startDateParts = startDateString.split('/');
+        const startDate = new Date(`${startDateParts[2]}-${startDateParts[1]}-${startDateParts[0]}`);
+
+        // Current date
+        const currentDate = new Date();
+
+        // Calculate the difference in milliseconds
+        const timeDifference = currentDate - startDate;
+
+        // Convert milliseconds to days
+        const daysDifference = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+
+        const lastMajorOverHaulPort = daysDifference
+        const lastMajorOverHaulSTBD = daysDifference
+        const nextMajorOverHaulPort = (majorOverHaul * lastMajorOverHaulPort / totalRunningHoursPort - lastMajorOverHaulPort) / 365
+        const nextMajorOverHaulSTBD = (majorOverHaul * lastMajorOverHaulSTBD / totalRunningHoursSTBD - lastMajorOverHaulSTBD) / 365
+
         fileDataArray.push([serialNumber, vesselName, vesselHP, parseFloat(totalConsumption.toFixed(1)), parseFloat(totalHours.toFixed(1)),
             meCON, meCONperD, parseFloat(totalHoursDG1.toFixed(1)), parseFloat(totalHoursDG2.toFixed(1)), parseFloat(totalHoursDG3.toFixed(1)),
             parseFloat(totalHoursDG4.toFixed(1)), parseFloat(totalHoursDG5.toFixed(1)), parseFloat(totalDGHours.toFixed(1)), parseFloat((totalDGHours / 24 / monthDay).toFixed(1)),
             parseFloat(auxCON).toFixed(1), parseFloat(auxCONperD).toFixed(1), parseFloat(meCONperD + auxCONperD).toFixed(1),
-            parseFloat((meCONperD + auxCONperD) * 1000 / vesselHP).toFixed(1), parseFloat(totalMile.toFixed(1)), parseFloat(totalRunningHoursPort.toFixed(1)), parseFloat(totalRunningHoursSTBD.toFixed(1))])
+            parseFloat((meCONperD + auxCONperD) * 1000 / vesselHP).toFixed(1), parseFloat(totalMile.toFixed(1)), parseFloat(totalRunningHoursPort.toFixed(1)),
+            parseFloat(totalRunningHoursSTBD.toFixed(1)), parseFloat(nextMajorOverHaulPort.toFixed(1)) + ' Year', parseFloat(nextMajorOverHaulSTBD.toFixed(1)) + ' Year'])
         serialNumber++;
-
-
     });
-    console.log(fileDataArray)
 
     // Create a new workbook
     const newWorkbook = xlsx.utils.book_new();
@@ -451,7 +522,9 @@ const dprController = (req, res) => {
         { wpx: 80 }, // ratio HP-L
         { wpx: 90 },// Total DIST.
         { wpx: 185 }, //Total Running Hours M/E Port
-        { wpx: 185 } //Total Running Hours M/E STBD
+        { wpx: 185 }, //Total Running Hours M/E STBD
+        { wpx: 185 }, //Estimated major overhaul M/E Port
+        { wpx: 185 } //Estimated major overhaul M/E STBD
     ];
     newWorksheet['!cols'] = columnWidths;
 

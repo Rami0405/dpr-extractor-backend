@@ -3,38 +3,52 @@
     {
       "name": "Synergy",
       "horsepower": 2400,
-      "consumptionAUX":17
+      "consumptionAUX":17,
+      "MinorOverhaul":8000,
+      "MajorOverhaul":20000
     },
     {
       "name": "EAGLE 2",
       "horsepower": 5184,
-      "consumptionAUX":35
+      "consumptionAUX":35,
+      "MinorOverhaul":8000,
+      "MajorOverhaul":20000
 
     },
     {   "name": "EAGLE 1",
       "horsepower": 5150,
-      "consumptionAUX":35
+      "consumptionAUX":35,
+      "MinorOverhaul":8000,
+      "MajorOverhaul":20000
 
     },
     {   "name": "Farida A",
       "horsepower": 1658,
-      "consumptionAUX":20
+      "consumptionAUX":20,
+      "MinorOverhaul":8000,
+      "MajorOverhaul":20000
     },
     {
       "name": "TITAN",
       "horsepower": 5150,
-      "consumptionAUX":27
+      "consumptionAUX":27,
+      "MinorOverhaul":8000,
+      "MajorOverhaul":20000
 
     },
     {
       "name": "RESOLUTION",
       "horsepower": 5220,
-      "consumptionAUX":40
+      "consumptionAUX":40,
+      "MinorOverhaul":8000,
+      "MajorOverhaul":20000
     },
     {
       "name": "Neptune",
       "horsepower": 3600,
-      "consumptionAUX":33
+      "consumptionAUX":33,
+      "MinorOverhaul":8000,
+      "MajorOverhaul":20000
 
     }
   ]
