@@ -5,6 +5,8 @@ const path = require('path');
 const os = require('os');
 const { v4: uuidv4 } = require('uuid');
 const vesselsData = require('./vesselsHP.json');
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
 const countMGOInAllSheets = (filePath) => {
     const workbook = xlsx.readFile(filePath);
@@ -304,8 +306,10 @@ const readVesselsFileAUX = (vesselName) => {
 
 
 // Handle the uploaded files
-const dprController = (req, res) => {
+const dprController = async (req, res) => {
     const files = req.files;
+    const month = req.body.month;
+    const year = req.body.year;
     const fileDataArray = [];
     var serialNumber = 1;
     fileDataArray.unshift(['S/N', 'Vessel Name', 'HP', 'Monthly CONSM.Cu.M',
@@ -362,11 +366,9 @@ const dprController = (req, res) => {
                 }
 
                 if (fileDataArray.length === 1) {
-                    fileDataArray.unshift(['', '', '', '', VesselRow[2], VesselRow[3]]);
-
+                    fileDataArray.unshift(['', '', '', '', VesselRow[2], month + ' ' + year]);
+                    console.log(VesselRow[2], VesselRow[3])
                 }
-
-
 
             });
         });
@@ -399,14 +401,51 @@ const dprController = (req, res) => {
         const nextMajorOverHaulSTBD = (majorOverHaul * lastMajorOverHaulSTBD / totalRunningHoursSTBD - lastMajorOverHaulSTBD) / 365
 
         fileDataArray.push([serialNumber, vesselName, vesselHP, parseFloat(totalConsumption.toFixed(1)), parseFloat(totalHours.toFixed(1)),
-            meCON, meCONperD, parseFloat(totalHoursDG1.toFixed(1)), parseFloat(totalHoursDG2.toFixed(1)), parseFloat(totalHoursDG3.toFixed(1)),
+            meCON, meCONperD.toFixed(1), parseFloat(totalHoursDG1.toFixed(1)), parseFloat(totalHoursDG2.toFixed(1)), parseFloat(totalHoursDG3.toFixed(1)),
             parseFloat(totalHoursDG4.toFixed(1)), parseFloat(totalHoursDG5.toFixed(1)), parseFloat(totalDGHours.toFixed(1)), parseFloat((totalDGHours / 24 / monthDay).toFixed(1)),
             parseFloat(auxCON).toFixed(1), parseFloat(auxCONperD).toFixed(1), parseFloat(meCONperD + auxCONperD).toFixed(1),
             parseFloat((meCONperD + auxCONperD) * 1000 / vesselHP).toFixed(1), parseFloat(totalMile.toFixed(1)), parseFloat(totalRunningHoursPort.toFixed(1)),
-            parseFloat(totalRunningHoursSTBD.toFixed(1)), parseFloat(nextMajorOverHaulPort.toFixed(1)) + ' Year', parseFloat(nextMajorOverHaulSTBD.toFixed(1)) + ' Year'])
+            parseFloat(totalRunningHoursSTBD.toFixed(1)), parseFloat(nextMajorOverHaulPort.toFixed(1)), parseFloat(nextMajorOverHaulSTBD.toFixed(1))])
         serialNumber++;
     });
-
+    try {
+        for (let i = 2; i < fileDataArray.length; i++) {
+            await prisma.vessel.create({
+                data: {
+                    Name: fileDataArray[i][1],
+                    Year: year,
+                    Month: month,
+                    HP: fileDataArray[i][2],
+                    MonthlyConsmCuM: parseFloat(fileDataArray[i][3]),
+                    MonthlyMeRH: parseFloat(fileDataArray[i][4]),
+                    MeConH: parseFloat(fileDataArray[i][5]),
+                    MeConDCuM: parseFloat(fileDataArray[i][6]),
+                    Dg1RH: parseFloat(fileDataArray[i][7]),
+                    Dg2RH: parseFloat(fileDataArray[i][8]),
+                    Dg3RH: parseFloat(fileDataArray[i][9]),
+                    Dg4RH: parseFloat(fileDataArray[i][10]),
+                    Dg5RH: parseFloat(fileDataArray[i][11]),
+                    AuxRHTotal: parseFloat(fileDataArray[i][12]),
+                    NumAuxRD: parseFloat(fileDataArray[i][13]),
+                    AuxConH: parseFloat(fileDataArray[i][14]),
+                    AuxConDCuM: parseFloat(fileDataArray[i][15]),
+                    EstimatedVesselConAvgSailingConsumptionCuM: parseFloat(fileDataArray[i][16]),
+                    RatioHpL: parseFloat(fileDataArray[i][17]),
+                    TotalDist: parseFloat(fileDataArray[i][18]),
+                    TotalRunningHourMePort: parseFloat(fileDataArray[i][19]),
+                    TotalRunningHourMeSTBD: parseFloat(fileDataArray[i][20]),
+                    EstimatedMajorOverHaulMePort: parseFloat(fileDataArray[i][21]),
+                    EstimatedMajorOverHaulMeSTBD: parseFloat(fileDataArray[i][22]),
+                },
+            });
+        }
+    }
+    catch (error) {
+        console.error('Error:', error);
+    } finally {
+        // Disconnect the Prisma client
+        await prisma.$disconnect();
+    }
     // Create a new workbook
     const newWorkbook = xlsx.utils.book_new();
 
@@ -415,7 +454,7 @@ const dprController = (req, res) => {
 
     // ...
 
-
+    console.log(fileDataArray[2])
     const style2 = {
         alignment: {
             horizontal: 'center',
@@ -625,6 +664,7 @@ const dprController = (req, res) => {
         // Remove the temporary file
         fs.unlinkSync(filePath);
     });
+
 };
 
 module.exports = dprController;

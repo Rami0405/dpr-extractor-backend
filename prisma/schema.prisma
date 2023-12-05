@@ -1,0 +1,35 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+model Vessel {
+    id    Int     @id @default(autoincrement())
+    Name  String
+    HP Int
+    Year String
+    Month String
+    MonthlyConsmCuM Float
+    MonthlyMeRH Float
+    MeConH Float
+    MeConDCuM Float
+    Dg1RH Float
+    Dg2RH Float
+    Dg3RH Float
+    Dg4RH Float
+    Dg5RH Int
+    AuxRHTotal Float
+    NumAuxRD Float
+    AuxConH Float
+    AuxConDCuM Float
+    EstimatedVesselConAvgSailingConsumptionCuM Float
+    RatioHpL Float
+    TotalDist Float
+    TotalRunningHourMePort Float
+    TotalRunningHourMeSTBD Float
+    EstimatedMajorOverHaulMePort Float
+    EstimatedMajorOverHaulMeSTBD Float
+}
